@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>333</height>
+    <width>561</width>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,6 +31,12 @@
     </item>
     <item>
      <widget class="QTableView" name="resultTable">
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
@@ -43,7 +49,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>380</width>
+     <width>561</width>
      <height>21</height>
     </rect>
    </property>
@@ -51,8 +57,8 @@
     <property name="title">
      <string>模式</string>
     </property>
-    <addaction name="actionSaveMode"/>
     <addaction name="actionLoadMode"/>
+    <addaction name="actionSaveMode"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">

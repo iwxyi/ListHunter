@@ -111,6 +111,7 @@ private slots:
     void loadMode(MyJson json);
     void saveModeFile(QString path);
     void search(QString key);
+    void runCmds(QString cmd);
 
 private slots:
     void on_searchButton_clicked();
@@ -120,6 +121,8 @@ private slots:
     void on_actionLoadMode_triggered();
 
     void on_searchEdit_returnPressed();
+
+    void on_resultTable_customContextMenuRequested(const QPoint &);
 
 protected:
     void showEvent(QShowEvent* e) override;
@@ -131,10 +134,11 @@ private:
 
     // 搜索变量
     QString searchKey; // 搜索的变量：【8080】
+    QStringList resultLines; // 每一行的搜索结果
 
     QList<SearchType> searchTypes;
     QStringList resultTitles;
-    QList<LineBean> resultLines; // 每一行搜索结果
+    QList<LineBean> resultLineBeans; // 每一行搜索结果
 
 };
 #endif // MAINWINDOW_H

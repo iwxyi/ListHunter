@@ -44,6 +44,10 @@ void MainWindow::loadModeFile(QString path)
 
 void MainWindow::loadMode(MyJson json)
 {
+    QString tip = json.s("placeholder");
+    if (!tip.isEmpty())
+        ui->searchEdit->setPlaceholderText(tip);
+
     searchTypes.clear();
     json.each("search_types", [=](const MyJson& line){
         searchTypes.append(SearchType::fromJson(line));
@@ -54,9 +58,9 @@ void MainWindow::loadMode(MyJson json)
         resultTitles.append(val.toString());
     LOAD_DEB << "result_titles:" << resultTitles;
 
-    resultLines.clear();
+    resultLineBeans.clear();
     json.each("result_lines", [=](const MyJson& line){
-        resultLines.append(LineBean::fromJson(line));
+        resultLineBeans.append(LineBean::fromJson(line));
     });
 }
 
@@ -75,7 +79,7 @@ void MainWindow::saveModeFile(QString path)
     json.insert("result_titles", array);
 
     array = QJsonArray();
-    for (auto line: resultLines)
+    for (auto line: resultLineBeans)
         array.append(line.toJson());
     json.insert("result_lines", array);
 
@@ -95,7 +99,7 @@ void MainWindow::search(QString key)
         QStringList caps = match.capturedTexts();
         cmd = type.searchExp;
         for (int i = 0; i < caps.size(); i++)
-            cmd.replace("%" + QString::number(i+1), caps.at(i));
+            cmd.replace("%" + QString::number(i + 1), caps.at(i));
         break;
     }
     if (cmd.isEmpty())
@@ -113,8 +117,8 @@ void MainWindow::search(QString key)
     QString result = QString::fromLocal8Bit(process.readAllStandardOutput());
     QStringList lines = result.split(QRegularExpression("[\\r\\n]+"), QString::SkipEmptyParts);
     qInfo() << "result_count:" << lines.count();
-    for (auto line: lines)
-        qDebug() << line;
+    // for (auto line: lines)
+    //    qDebug() << line;
 
     // 设置表格
     QStandardItemModel* model = new QStandardItemModel();
@@ -124,13 +128,14 @@ void MainWindow::search(QString key)
 
     // 添加到结果
     int modelLineIndex = 0;
+    resultLines.clear();
     for (QString lineStr: lines)
     {
         // 判断匹配的格式
         int i;
-        for (i = 0; i < resultLines.size(); i++)
+        for (i = 0; i < resultLineBeans.size(); i++)
         {
-            const LineBean& lb = resultLines.at(i);
+            const LineBean& lb = resultLineBeans.at(i);
             const QString& expression = lb.expression;
             QRegularExpressionMatch match;
             if (lineStr.indexOf(QRegularExpression(expression), 0, &match) < 0)
@@ -149,12 +154,24 @@ void MainWindow::search(QString key)
                 model->setItem(modelLineIndex, j, new QStandardItem(cell));
             }
             modelLineIndex++;
+            resultLines.append(lineStr);
             break;
         }
-        if (i == resultLines.size())
+        if (i == resultLineBeans.size())
             ; // 没有适合匹配的
     }
     ui->resultTable->setModel(model);
+}
+
+void MainWindow::runCmds(QString cmd)
+{
+    QProcess process;
+    qInfo() << "exec_cmd:" << cmd;
+    process.start(cmd);
+    process.waitForStarted();
+    process.waitForFinished();
+    QString result = QString::fromLocal8Bit(process.readAllStandardOutput());
+    qDebug() << "result:" << result;
 }
 
 void MainWindow::on_searchButton_clicked()
@@ -196,4 +213,50 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
     settings->set("mainwindow/geometry", saveGeometry());
     return QMainWindow::closeEvent(e);
+}
+
+void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
+{
+    // TODO: 支持多选
+    auto rows = ui->resultTable->selectionModel()->selectedRows(0);
+    if (!rows.size())
+        return ;
+
+    QMenu* menu = new QMenu;
+    int row = rows.first().row();
+    if (row < 0 || row >= resultLines.size())
+        return ;
+    QString str = resultLines.at(row);
+
+    QRegularExpressionMatch match;
+    for (int i = 0; i < resultLineBeans.size(); i++)
+    {
+        const LineBean& lb = resultLineBeans.at(i);
+        if (str.indexOf(QRegularExpression(lb.expression), 0, &match) < 0)
+            continue;
+
+        // 匹配到了
+        QStringList caps = match.capturedTexts();
+        for (auto action: lb.actions)
+        {
+            QAction* act = new QAction(action.name, menu);
+            QString cmd = action.cmd;
+            for (int i = 0; i < action.args.size(); i++)
+            {
+                cmd.replace("%" + QString::number(i + 1), caps.at(action.args.at(i)));
+            }
+            connect(act, &QAction::triggered, this, [=]{
+                runCmds(cmd);
+            });
+            menu->addAction(act);
+        }
+        break;
+    }
+
+    if (menu->actions().size() == 0)
+    {
+        delete menu;
+        return ;
+    }
+    menu->exec(QCursor::pos());
 }
