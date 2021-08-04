@@ -10,7 +10,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-#define LOAD_DEB if (1) qInfo()
+#define LOAD_DEB if (0) qInfo()
 
 class MainWindow : public QMainWindow
 {
@@ -57,12 +57,15 @@ public:
         /*   TCP    0.0.0.0:5520           0.0.0.0:0              LISTENING       24536
              TCP    [::]:5520              [::]:0                 LISTENING       24536 */
         QList<OperatorBean> actions; // 菜单操作
+        bool ignore = false;
+        char aaa[3];
 
         static LineBean fromJson(const MyJson& json)
         {
             LineBean lb;
             lb.expression = json.s("expression");
             LOAD_DEB << "    line_exp:" << lb.expression;
+            lb.ignore = json.b("ignore", lb.ignore);
             for (auto val: json.a("actions"))
                 lb.actions.append(OperatorBean::fromJson(val.toObject()));
             return lb;
@@ -71,7 +74,8 @@ public:
         MyJson toJson() const
         {
             MyJson json;
-            json.add("expression", expression);
+            json.add("expression", expression)
+                    .add("ignore", ignore);
             QJsonArray array;
             for (auto action: actions)
                 array.append(action.toJson());
@@ -91,6 +95,8 @@ private slots:
 
     void on_actionLoadMode_triggered();
 
+    void on_searchEdit_returnPressed();
+
 private:
     Ui::MainWindow *ui;
     MySettings* settings;
@@ -98,6 +104,7 @@ private:
     // 搜索变量
     QString searchKey; // 搜索的变量：【8080】
     QString searchExp; // 搜索的表达式：【netstat -ano | findstr %1】
+    QStringList resultTitles;
     QList<LineBean> resultLines; // 每一行搜索结果
 
 };
