@@ -30,7 +30,11 @@
      </layout>
     </item>
     <item>
-     <widget class="QTableView" name="resultTable"/>
+     <widget class="QTableView" name="resultTable">
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
