@@ -18,21 +18,24 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
-    struct OperatorBean
+    struct ActionBean
     {
         QString name; // 操作名字：【结束程序】
         QString cmd; // 操作命令：【taskkill /pid %1 /f】
+        QString exp; // （可空）使用自己表达式的match（不匹配则跳过），而不是行匹配后的match；会影响后面的action
         QList<int> args; // 传入的参数在当前行捕获组中的索引：【[5]】
 
-        static OperatorBean fromJson(const MyJson& json)
+        static ActionBean fromJson(const MyJson& json)
         {
-            OperatorBean ob;
+            ActionBean ob;
             ob.name = json.s("name");
             LOAD_DEB << "        name:" << ob.name;
             ob.cmd = json.s("cmd");
             LOAD_DEB << "        cmd:" << ob.cmd;
+            ob.exp = json.s("exp");
+            LOAD_DEB << "        exp:" << ob.exp;
             for (auto val: json.a("args"))
                 ob.args.append(val.toInt());
             return ob;
@@ -41,7 +44,7 @@ public:
         MyJson toJson() const
         {
             MyJson json;
-            json.add("name", name).add("cmd", cmd);
+            json.add("name", name).add("cmd", cmd).add("exp", exp);
             QJsonArray array;
             for (int val: args)
                 array.append(val);
@@ -56,7 +59,7 @@ public:
         /* 【^\s*(\w+)\s+([\d\.:]+)\s+([\d\.:]+)\s+LISTENING\s+(\d+)\s*$】 */
         /*   TCP    0.0.0.0:5520           0.0.0.0:0              LISTENING       24536
              TCP    [::]:5520              [::]:0                 LISTENING       24536 */
-        QList<OperatorBean> actions; // 菜单操作
+        QList<ActionBean> actions; // 菜单操作
         bool ignore = false;
         char aaa[3];
 
@@ -67,7 +70,7 @@ public:
             LOAD_DEB << "    line_exp:" << lb.expression;
             lb.ignore = json.b("ignore", lb.ignore);
             for (auto val: json.a("actions"))
-                lb.actions.append(OperatorBean::fromJson(val.toObject()));
+                lb.actions.append(ActionBean::fromJson(val.toObject()));
             return lb;
         }
 

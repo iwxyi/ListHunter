@@ -161,6 +161,7 @@ void MainWindow::search(QString key)
             ; // 没有适合匹配的
     }
     ui->resultTable->setModel(model);
+    ui->resultTable->resizeColumnsToContents();
 }
 
 void MainWindow::runCmds(QString cmd)
@@ -171,7 +172,7 @@ void MainWindow::runCmds(QString cmd)
     process.waitForStarted();
     process.waitForFinished();
     QString result = QString::fromLocal8Bit(process.readAllStandardOutput());
-    qDebug() << "result:" << result;
+    qInfo() << "result:" << result;
 }
 
 void MainWindow::on_searchButton_clicked()
@@ -241,6 +242,11 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
         {
             QAction* act = new QAction(action.name, menu);
             QString cmd = action.cmd;
+            if (!action.exp.isEmpty())
+            {
+                if (str.indexOf(QRegularExpression(action.exp), 0, &match) < 0)
+                    continue;
+            }
             for (int i = 0; i < action.args.size(); i++)
             {
                 cmd.replace("%" + QString::number(i + 1), caps.at(action.args.at(i)));

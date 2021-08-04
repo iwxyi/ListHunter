@@ -34,6 +34,13 @@
       <property name="contextMenuPolicy">
        <enum>Qt::CustomContextMenu</enum>
       </property>
+      <property name="styleSheet">
+       <string notr="true">QTableView::item
+{
+	padding-left:10px;
+	padding-right: 10px;
+}</string>
+      </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::SingleSelection</enum>
       </property>
