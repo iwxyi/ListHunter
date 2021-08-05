@@ -1,0 +1,39 @@
+{
+	"placeholder": "搜索端口号",
+	"search_types": [
+		{
+			"key_exp": "^(\\d+)$",
+			"search_exp": "netstat -ano | findstr %1"
+		},
+		{
+			"key_exp": "^$",
+			"search_exp": "netstat -ano"
+		}
+	],
+	"result_titles":[
+		"协议",
+		"本地地址",
+		"外部地址",
+		"状态",
+		"PID"
+	],
+	"result_lines":[
+		{
+			"expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\d\.:]+)\\s+(\\w+)\\s+(\\d+)\\s*$",
+			"actions": [
+				{
+					"name": "Stop Application",
+					"cmd": "taskkill /pid %1 /f",
+					"exp": "",
+					"args": [
+						5
+					]
+				}
+			]
+		},
+		{
+			"expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\*:]+)\\s+(\\d+)\\s*$",
+			"ignore": true
+		}
+	]
+}

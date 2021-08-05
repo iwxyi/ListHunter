@@ -111,12 +111,14 @@ void MainWindow::search(QString key)
     // 执行命令行
     QProcess process;
     qInfo() << "exec_cmd:" << cmd;
-    process.start(cmd);
+    process.start("cmd", QStringList{"/c", cmd});
     process.waitForStarted();
     process.waitForFinished();
     QString result = QString::fromLocal8Bit(process.readAllStandardOutput());
+    QString error = QString::fromLocal8Bit(process.readAllStandardError());
     QStringList lines = result.split(QRegularExpression("[\\r\\n]+"), QString::SkipEmptyParts);
-    qInfo() << "result_count:" << lines.count();
+    qInfo() << "result_line_count:" << lines.count();
+    // qInfo() << "result:" << result << "    error:" << error;
     // for (auto line: lines)
     //    qDebug() << line;
 

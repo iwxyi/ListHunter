@@ -10,7 +10,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-#define LOAD_DEB if (1) qInfo()
+#define LOAD_DEB if (0) qInfo()
 
 class MainWindow : public QMainWindow
 {
