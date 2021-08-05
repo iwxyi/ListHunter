@@ -255,6 +255,8 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
             }
             connect(act, &QAction::triggered, this, [=]{
                 runCmds(cmd);
+                if (action.refresh)
+                    on_searchButton_clicked();
             });
             menu->addAction(act);
         }

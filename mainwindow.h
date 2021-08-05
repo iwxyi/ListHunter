@@ -26,6 +26,8 @@ public:
         QString cmd; // 操作命令：【taskkill /pid %1 /f】
         QString exp; // （可空）使用自己表达式的match（不匹配则跳过），而不是行匹配后的match；会影响后面的action
         QList<int> args; // 传入的参数在当前行捕获组中的索引：【[5]】
+        bool refresh = false;
+        char aaa[3];
 
         static ActionBean fromJson(const MyJson& json)
         {
@@ -36,6 +38,7 @@ public:
             LOAD_DEB << "        cmd:" << ob.cmd;
             ob.exp = json.s("exp");
             LOAD_DEB << "        exp:" << ob.exp;
+            ob.refresh = json.b("refresh");
             for (auto val: json.a("args"))
                 ob.args.append(val.toInt());
             return ob;
@@ -44,7 +47,7 @@ public:
         MyJson toJson() const
         {
             MyJson json;
-            json.add("name", name).add("cmd", cmd).add("exp", exp);
+            json.add("name", name).add("cmd", cmd).add("exp", exp).add("refresh", refresh);
             QJsonArray array;
             for (int val: args)
                 array.append(val);

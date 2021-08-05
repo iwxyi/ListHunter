@@ -27,7 +27,8 @@
 					"exp": "",
 					"args": [
 						5
-					]
+					],
+					"refresh": true
 				}
 			]
 		},
