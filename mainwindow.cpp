@@ -65,6 +65,8 @@ void MainWindow::loadMode(MyJson json)
     });
 
     ui->searchEdit->clear();
+    ui->resultTable->setModel(new QStandardItemModel());
+    resultLines.clear();
 }
 
 void MainWindow::saveModeFile(QString path)
@@ -272,13 +274,24 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
             }
 
             // 设置执行cmd
-            for (int i = 0; i < caps.size(); i++)
-            {
-                // cmd.replace("%" + QString::number(i + 1), caps.at(action.args.at(i)));
-                cmd.replace("%" + QString::number(i), caps.at(i));
-            }
             connect(act, &QAction::triggered, this, [=]{
-                runCmds(cmd);
+                QString re = action.exp.isEmpty() ? lb.expression : action.exp;
+                QRegularExpressionMatch match;
+                for (auto ri: rows) // 遍历每一行
+                {
+                    if (resultLines.at(ri.row()).indexOf(QRegularExpression(re), 0, &match) == -1)
+                    {
+                        qWarning() << "action.cmd匹配失败：";
+                        continue;
+                    }
+                    QStringList caps = match.capturedTexts();
+                    QString t_cmd = cmd;
+                    for (int i = 0; i < caps.size(); i++)
+                    {
+                        t_cmd.replace("%" + QString::number(i), caps.at(i));
+                    }
+                    runCmds(t_cmd);
+                }
                 if (action.refresh)
                     on_searchButton_clicked();
             });
