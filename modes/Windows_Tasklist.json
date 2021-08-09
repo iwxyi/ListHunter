@@ -1,0 +1,37 @@
+{
+    "placeholder": "搜索EXE",
+    "search_types": [
+		{
+			"key_exp": "^(.+)$",
+            "search_exp": "tasklist | findstr %1"
+		},
+        {
+            "key_exp": "^$",
+            "search_exp": "tasklist"
+        }
+    ],
+    "result_titles": [
+        "映像名称",
+        "PID",
+		"会话名",
+		"会话#",
+		"内存使用"
+    ],
+    "result_lines": [
+        {
+            "expression": "^\\s*(.+?)\\s+(\\d+) (\\w+)\\s+(\\d)\\s+([\\d,]+ \\w+)\\s*$",
+            "actions": [
+                {
+                    "name": "Stop Application",
+                    "exp": "",
+                    "cmd": "taskkill /pid %2 /f",
+                    "refresh": true
+                }
+            ]
+        },
+        {
+            "expression": "^(映像名称|==========).+$",
+            "ignore": true
+        }
+    ]
+}
