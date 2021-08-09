@@ -42,7 +42,7 @@
 }</string>
       </property>
       <property name="selectionMode">
-       <enum>QAbstractItemView::SingleSelection</enum>
+       <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
@@ -78,12 +78,12 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSaveMode">
    <property name="text">
-    <string>SaveMode</string>
+    <string>保存模式</string>
    </property>
   </action>
   <action name="actionLoadMode">
    <property name="text">
-    <string>LoadMode</string>
+    <string>加载模式</string>
    </property>
   </action>
  </widget>

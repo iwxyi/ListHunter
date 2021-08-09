@@ -220,7 +220,6 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
 {
-    // TODO: 支持多选
     auto rows = ui->resultTable->selectionModel()->selectedRows(0);
     if (!rows.size())
         return ;
@@ -231,24 +230,43 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
         return ;
     QString str = resultLines.at(row);
 
+    auto canAllResultMatch = [=](const QString& re) -> bool {
+        for (auto ri: rows)
+        {
+            if (!resultLines.at(ri.row()).contains(QRegularExpression(re)))
+            {
+                return false;
+            }
+        }
+        return true;
+    };
+
     QRegularExpressionMatch match;
     for (int i = 0; i < resultLineBeans.size(); i++)
     {
         const LineBean& lb = resultLineBeans.at(i);
         if (str.indexOf(QRegularExpression(lb.expression), 0, &match) < 0)
             continue;
+        if (!canAllResultMatch(lb.expression))
+            continue;
 
-        // 匹配到了
+        // 匹配到这一个action组，遍历是否所有action都可以匹配
         QStringList caps = match.capturedTexts();
         for (auto action: lb.actions)
         {
             QAction* act = new QAction(action.name, menu);
             QString cmd = action.cmd;
+
+            // 判断action自己的表达式
             if (!action.exp.isEmpty())
             {
                 if (str.indexOf(QRegularExpression(action.exp), 0, &match) < 0)
                     continue;
+                if (!canAllResultMatch(action.exp))
+                    continue;
             }
+
+            // 设置执行cmd
             for (int i = 0; i < action.args.size(); i++)
             {
                 cmd.replace("%" + QString::number(i + 1), caps.at(action.args.at(i)));
@@ -258,6 +276,8 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
                 if (action.refresh)
                     on_searchButton_clicked();
             });
+
+            // 添加菜单
             menu->addAction(act);
         }
         break;

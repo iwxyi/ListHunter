@@ -24,7 +24,7 @@
     "result_lines": [
         // 匹配格式：TCP    0.0.0.0:5520           0.0.0.0:0              LISTENING       24536
         {
-            "expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\d\.:]+)\\s+(\\w+)\\s+(\\d+)\\s*$",
+            "expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\d\\.:]+)\\s+(\\w+)\\s+(\\d+)\\s*$",
             "actions": [
                 {
                     "name": "Stop Application", // 动作名字
