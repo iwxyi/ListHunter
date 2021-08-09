@@ -1,47 +1,37 @@
 {
-    "placeholder": "搜索端口号", // 搜索框中显示的提示
-    "search_types": [ // 根据搜索框的格式，使用不同的命令行搜索
-        // 关键词为数字，为搜索端口
-        {
-            "key_exp": "^(\\d+)$", // 满足这个纯数字的表达式时
-            "search_exp": "netstat -ano | findstr %1" // 执行搜索指定端口的命令行
-        },
-        // 关键词为空，为搜索全部
-        {
-            "key_exp": "^$",
-            "search_exp": "netstat -ano" // 执行搜索全部端口的命令行
-        }
-    ],
-    // 搜索结果的标题；搜索结果的列数
-    "result_titles": [
-        "协议",
-        "本地地址",
-        "外部地址",
-        "状态",
-        "PID"
-    ],
-    // 处理搜索结果的每一行
-    "result_lines": [
-        // 匹配格式：TCP    0.0.0.0:5520           0.0.0.0:0              LISTENING       24536
-        {
-            "expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\d\\.:]+)\\s+(\\w+)\\s+(\\d+)\\s*$",
-            "actions": [
-                {
-                    "name": "Stop Application", // 动作名字
-                    "exp": "", // 不为空则替换上面的expression的匹配结果；会继续影响后面action的参数
-                    "cmd": "taskkill /pid %1 /f", // 动作命令行，%1、%2等会替换为传入的参数
-                    "args": [ // cmd参数在“当前行的expression/动作的exp”的捕获组中的索引
-                        // 捕获组（即小括号包裹的）的索引从1开始；0为一整行
-                        5 // 第5个，即将端口传入到上两行的cmd的%1里
-                    ],
-                    "refresh": true // 执行操作后，刷新搜索结果
-                }
-            ]
-        },
-        // 匹配格式：TCP    [::]:5520              [::]:0                 LISTENING       24536
-        {
-            "expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\*:]+)\\s+(\\d+)\\s*$",
-            "ignore": true // 忽略这一行
-        }
-    ]
+	"placeholder": "搜索端口号",
+	"search_types": [
+		{
+			"key_exp": "^(\\d+)$",
+			"search_exp": "netstat -ano | findstr %1"
+		},
+		{
+			"key_exp": "^$",
+			"search_exp": "netstat -ano"
+		}
+	],
+	"result_titles":[
+		"协议",
+		"本地地址",
+		"外部地址",
+		"状态",
+		"PID"
+	],
+	"result_lines":[
+		{
+			"expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\d\\、.:]+)\\s+(\\w+)\\s+(\\d+)\\s*$",
+			"actions": [
+				{
+					"name": "Stop Application",
+					"cmd": "taskkill /pid %5 /f",
+					"exp": "",
+					"refresh": true
+				}
+			]
+		},
+		{
+			"expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\*:]+)\\s+(\\d+)\\s*$",
+			"ignore": true
+		}
+	]
 }

@@ -37,6 +37,7 @@ void MainWindow::loadModeFile(QString path)
     if (!ok)
     {
         qCritical() << "读取模式文件失败：" << err;
+        QMessageBox::critical(this, "加载模式JSON失败", err);
         return ;
     }
     loadMode(json);
@@ -62,6 +63,8 @@ void MainWindow::loadMode(MyJson json)
     json.each("result_lines", [=](const MyJson& line){
         resultLineBeans.append(LineBean::fromJson(line));
     });
+
+    ui->searchEdit->clear();
 }
 
 void MainWindow::saveModeFile(QString path)
@@ -105,6 +108,7 @@ void MainWindow::search(QString key)
     if (cmd.isEmpty())
     {
         qCritical() << "没有要执行的命令行";
+        QMessageBox::critical(this, "无法搜索", "找不和适合执行的命令行\n[search_types]下没有满足关键词的搜索表达式");
         return ;
     }
 
@@ -264,12 +268,14 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
                     continue;
                 if (!canAllResultMatch(action.exp))
                     continue;
+                caps = match.capturedTexts();
             }
 
             // 设置执行cmd
-            for (int i = 0; i < action.args.size(); i++)
+            for (int i = 0; i < caps.size(); i++)
             {
-                cmd.replace("%" + QString::number(i + 1), caps.at(action.args.at(i)));
+                // cmd.replace("%" + QString::number(i + 1), caps.at(action.args.at(i)));
+                cmd.replace("%" + QString::number(i), caps.at(i));
             }
             connect(act, &QAction::triggered, this, [=]{
                 runCmds(cmd);
