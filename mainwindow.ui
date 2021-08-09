@@ -41,6 +41,9 @@
 	padding-right: 10px;
 }</string>
       </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
@@ -69,8 +72,9 @@
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>帮助</string>
+     <string>关于</string>
     </property>
+    <addaction name="actionGitHub"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -84,6 +88,11 @@
   <action name="actionLoadMode">
    <property name="text">
     <string>加载模式</string>
+   </property>
+  </action>
+  <action name="actionGitHub">
+   <property name="text">
+    <string>GitHub</string>
    </property>
   </action>
  </widget>

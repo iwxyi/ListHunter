@@ -130,6 +130,8 @@ private slots:
 
     void on_resultTable_customContextMenuRequested(const QPoint &);
 
+    void on_actionGitHub_triggered();
+
 protected:
     void showEvent(QShowEvent* e) override;
     void closeEvent(QCloseEvent*e) override;

@@ -7,6 +7,17 @@ ListHunter
 
 更换不同的配置模式，可用于执行不同的操作，甚至跨平台。
 
+---
+
+默认配置（modes文件夹里）已支持：
+
+- 搜索端口，强制关闭进程
+- 搜索程序，强制关闭进程
+
+
+
+# 截图
+
 ![搜索全部端口](screenshots/search1.png)
 
 ![终止指定端口](screenshots/search2.png)

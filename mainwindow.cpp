@@ -1,6 +1,7 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QStandardItemModel>
+#include <QDesktopServices>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "fileutil.h"
@@ -281,7 +282,7 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
                 {
                     if (resultLines.at(ri.row()).indexOf(QRegularExpression(re), 0, &match) == -1)
                     {
-                        qWarning() << "action.cmd匹配失败：";
+                        qWarning() << "action.cmd匹配失败：" << resultLines.at(ri.row()) << " ==> " << re;
                         continue;
                     }
                     QStringList caps = match.capturedTexts();
@@ -308,4 +309,9 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
         return ;
     }
     menu->exec(QCursor::pos());
+}
+
+void MainWindow::on_actionGitHub_triggered()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/iwxyi/ListHunter"));
 }
