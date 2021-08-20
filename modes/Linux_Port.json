@@ -3,11 +3,15 @@
 	"search_types": [
 		{
 			"key_exp": "^(\\d+)$",
-			"search_exp": "netstat -ano | findstr %1"
+			"search_exp": "netstat -pel | grep :%1"
+		},
+		{
+			"key_exp": "^(.+)$",
+			"search_exp": "netstat -pel | grep %1"
 		},
 		{
 			"key_exp": "^$",
-			"search_exp": "netstat -ano"
+			"search_exp": "netstat -pel"
 		}
 	],
 	"result_titles":[
@@ -15,22 +19,24 @@
 		"本地地址",
 		"外部地址",
 		"状态",
-		"PID"
+		"User",
+		"Inode",
+		"PID/Program name"
 	],
 	"result_lines":[
 		{
-			"expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\d\\.:]+)\\s+(\\w+)\\s+(\\d+)\\s*$",
+			"expression": "^\\s*(\\w+)\\s+\\d+\\s+\\d+\\s+([\\w\\.:]+)\\s+([\\w\\.:\\*]+)\\s+(\\w+)\\s+(\\S+)\\s+(\\d+)\\s+(-|\\d+/.+).*$",
 			"actions": [
 				{
 					"name": "Stop Application",
-					"cmd": "taskkill /pid %5 /f",
+					"cmd": "kill -9 %7",
 					"exp": "",
 					"refresh": true
 				}
 			]
 		},
 		{
-			"expression": "^\\s*(\\w+)\\s+([\\d\\.:]+)\\s+([\\*:]+)\\s+(\\d+)\\s*$",
+			"expression": "^\\s*Proto.+$",
 			"ignore": true
 		}
 	]
