@@ -2,6 +2,7 @@
 #include <QProcess>
 #include <QStandardItemModel>
 #include <QDesktopServices>
+#include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "fileutil.h"
@@ -12,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
       settings(new MySettings("settings.ini", QSettings::Format::IniFormat))
 {
     ui->setupUi(this);
+    refreshTimer = new QTimer(this);
+    connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshAndKeepSelection()));
 
     QString path = settings->s("recent/modeFile");
     if (!path.isEmpty() && isFileExist(path))
@@ -65,6 +68,13 @@ void MainWindow::loadMode(MyJson json)
         resultLineBeans.append(LineBean::fromJson(line));
     });
 
+    timerRefresh = json.i("refresh_timer", 0);
+
+    if (timerRefresh)
+        refreshTimer->start(timerRefresh);
+    else
+        refreshTimer->stop();
+
     ui->searchEdit->clear();
     ui->resultTable->setModel(new QStandardItemModel());
     resultLines.clear();
@@ -88,6 +98,9 @@ void MainWindow::saveModeFile(QString path)
     for (auto line: resultLineBeans)
         array.append(line.toJson());
     json.insert("result_lines", array);
+
+    if (timerRefresh > 0)
+        json.insert("refresh_timer", timerRefresh);
 
     writeTextFile(path, json.toBa());
 }
@@ -118,14 +131,22 @@ void MainWindow::search(QString key)
     // 执行命令行
     QProcess process;
     qInfo() << "exec_cmd:" << cmd;
+#if defined(Q_OS_WIN)
     process.start("cmd", QStringList{"/c", cmd});
+#elif defined(Q_OS_LINUX)
+    process.start("/bin/sh", QStringList{"-c", cmd});
+#else
+    process.start(cmd);
+#endif
     process.waitForStarted();
     process.waitForFinished();
     QString result = QString::fromLocal8Bit(process.readAllStandardOutput());
     QString error = QString::fromLocal8Bit(process.readAllStandardError());
     QStringList lines = result.split(QRegularExpression("[\\r\\n]+"), QString::SkipEmptyParts);
     qInfo() << "result_line_count:" << lines.count();
-    // qInfo() << "result:" << result << "    error:" << error;
+    // qInfo() << "result:" << result;
+    if (error != "")
+        qWarning() << "error:" << error;
     // for (auto line: lines)
     //    qDebug() << line;
 
@@ -182,6 +203,16 @@ void MainWindow::runCmds(QString cmd)
     process.waitForFinished();
     QString result = QString::fromLocal8Bit(process.readAllStandardOutput());
     qInfo() << "result:" << result;
+}
+
+void MainWindow::refreshAndKeepSelection()
+{
+    // 保存选择
+
+    // 开始搜索
+    on_searchButton_clicked();
+
+    // 恢复选择
 }
 
 void MainWindow::on_searchButton_clicked()
@@ -314,4 +345,11 @@ void MainWindow::on_resultTable_customContextMenuRequested(const QPoint&)
 void MainWindow::on_actionGitHub_triggered()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/iwxyi/ListHunter"));
+}
+
+void MainWindow::on_resultTable_pressed(const QModelIndex &index)
+{
+    // 如果开了定时刷新，重新等待刷新延时
+    if (refreshTimer->isActive())
+        refreshTimer->start();
 }

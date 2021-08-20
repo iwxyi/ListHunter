@@ -33,5 +33,6 @@
             "expression": "^(映像名称|==========).+$",
             "ignore": true
         }
-    ]
+    ],
+	"refresh_timer": 5000
 }

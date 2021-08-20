@@ -25,7 +25,6 @@ public:
         QString name; // 操作名字：【结束程序】
         QString cmd; // 操作命令：【taskkill /pid %1 /f】
         QString exp; // （可空）使用自己表达式的match（不匹配则跳过），而不是行匹配后的match；会影响后面的action
-        QList<int> args; // 传入的参数在当前行捕获组中的索引：【[5]】
         bool refresh = false;
         char aaa[3];
 
@@ -39,8 +38,6 @@ public:
             ob.exp = json.s("exp");
             LOAD_DEB << "        exp:" << ob.exp;
             ob.refresh = json.b("refresh");
-            for (auto val: json.a("args"))
-                ob.args.append(val.toInt());
             return ob;
         }
 
@@ -49,8 +46,6 @@ public:
             MyJson json;
             json.add("name", name).add("cmd", cmd).add("exp", exp).add("refresh", refresh);
             QJsonArray array;
-            for (int val: args)
-                array.append(val);
             json.add("args", array);
             return json;
         }
@@ -118,6 +113,7 @@ private slots:
     void saveModeFile(QString path);
     void search(QString key);
     void runCmds(QString cmd);
+    void refreshAndKeepSelection();
 
 private slots:
     void on_searchButton_clicked();
@@ -131,6 +127,8 @@ private slots:
     void on_resultTable_customContextMenuRequested(const QPoint &);
 
     void on_actionGitHub_triggered();
+
+    void on_resultTable_pressed(const QModelIndex &index);
 
 protected:
     void showEvent(QShowEvent* e) override;
@@ -147,6 +145,8 @@ private:
     QList<SearchType> searchTypes;
     QStringList resultTitles;
     QList<LineBean> resultLineBeans; // 每一行搜索结果
+    int timerRefresh = 0;
+    QTimer* refreshTimer = nullptr;
 
 };
 #endif // MAINWINDOW_H

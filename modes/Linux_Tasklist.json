@@ -1,0 +1,38 @@
+{
+    "placeholder": "Search Task",
+    "search_types": [
+	{
+		"key_exp": "^(.+)$",
+		"search_exp": "ps -ef | grep %1"
+	},
+        {
+		"key_exp": "^$",
+		"search_exp": "ps -ef"
+        }
+    ],
+    "result_titles": [
+	"UID",
+	"PID",
+	"STIME",
+	"TIME",
+	"CMD"
+    ],
+    "result_lines": [
+        {
+            "expression": "^\\s*(\\S+?)\\s+(\\d+)\\s*\\d+\\s*\\d+\\s*(\\S+)\\s*\\S+\\s*([\\d:]+)\\s*(.+)$",
+            "actions": [
+                {
+                    "name": "Stop Application",
+                    "exp": "",
+                    "cmd": "kill -9 %2",
+                    "refresh": true
+                }
+            ]
+        },
+        {
+            "expression": "^UID\\s+PID.+$",
+            "ignore": true
+        }
+    ],
+	"refresh_timer": 0
+}
