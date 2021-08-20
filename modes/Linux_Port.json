@@ -3,15 +3,15 @@
 	"search_types": [
 		{
 			"key_exp": "^(\\d+)$",
-			"search_exp": "netstat -pel | grep :%1"
+			"search_exp": "netstat -pe | grep :%1"
 		},
 		{
 			"key_exp": "^(.+)$",
-			"search_exp": "netstat -pel | grep %1"
+			"search_exp": "netstat -pe | grep %1"
 		},
 		{
 			"key_exp": "^$",
-			"search_exp": "netstat -pel"
+			"search_exp": "netstat -pe"
 		}
 	],
 	"result_titles":[
@@ -21,11 +21,12 @@
 		"状态",
 		"User",
 		"Inode",
-		"PID/Program name"
+		"PID",
+		"Program name"
 	],
 	"result_lines":[
 		{
-			"expression": "^\\s*(\\w+)\\s+\\d+\\s+\\d+\\s+([\\w\\.:]+)\\s+([\\w\\.:\\*]+)\\s+(\\w+)\\s+(\\S+)\\s+(\\d+)\\s+(-|\\d+/.+).*$",
+			"expression": "^\\s*(\\w+)\\s+\\d+\\s+\\d+\\s+([\\w\\.:]+)\\s+([\\w\\.:\\*]+)\\s+(\\w+)\\s+(\\w+)\\s+(\\d+)\\s+(\\d+)/(.+)$",
 			"actions": [
 				{
 					"name": "Stop Application",
